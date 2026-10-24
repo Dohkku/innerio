@@ -57,4 +57,35 @@ describe('asistente local', () => {
     ia.modelos = ['qwen3.5:4b'];
     await expect(ia.sugerir('x')).rejects.toThrow();
   });
+  it('downloads the model reporting progress', async () => {
+    const lineas = [
+      '{"status":"pulling manifest"}',
+      '{"status":"pulling abc","total":100,"completed":40}',
+      '{"status":"pulling abc","total":100,"completed":100}',
+      '{"status":"success"}',
+    ];
+    const cuerpo = new ReadableStream({
+      start(c) {
+        // Split mid-line on purpose: NDJSON chunks don't align with lines.
+        const todo = new TextEncoder().encode(`${lineas.join('\n')}\n`);
+        c.enqueue(todo.slice(0, 30));
+        c.enqueue(todo.slice(30));
+        c.close();
+      },
+    });
+    const vistos: (number | null)[] = [];
+    const ia = asistente();
+    vi.stubGlobal('fetch', (url: string) => {
+      if (url.endsWith('/api/pull')) {
+        return Promise.resolve({ ok: true, status: 200, body: cuerpo } as unknown as Response);
+      }
+      vistos.push(ia.progreso);
+      return respuesta({ models: [{ name: 'qwen3.5:4b' }] });
+    });
+    await ia.descargarModelo();
+    expect(vistos[0]).toBe(1);
+    expect(ia.progreso).toBeNull();
+    expect(ia.modelos).toEqual(['qwen3.5:4b']);
+    expect(ia.estadoDescarga).toBe('');
+  });
 });

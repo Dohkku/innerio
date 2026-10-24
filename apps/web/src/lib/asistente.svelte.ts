@@ -13,6 +13,8 @@
  */
 
 const OLLAMA = 'http://127.0.0.1:11434';
+/** Small enough for an ordinary laptop (~3 GB), good enough in tests. */
+export const MODELO_RECOMENDADO = 'qwen3.5:4b';
 const CLAVE_ACTIVO = 'innerio.asistente.activo';
 const CLAVE_MODELO = 'innerio.asistente.modelo';
 
@@ -76,15 +78,66 @@ class Asistente {
     return this.modelos.includes(this.modeloElegido) ? this.modeloElegido : (this.modelos[0] ?? '');
   }
 
+  /** Ollama answered (it may still have no model installed). */
+  ollama = $state(false);
+  /** Download in progress: 0–1, or null when idle. */
+  progreso = $state<number | null>(null);
+  estadoDescarga = $state('');
+
   async comprobar(): Promise<void> {
     try {
       const res = await fetch(`${OLLAMA}/api/tags`, { signal: AbortSignal.timeout(1500) });
       const data = (await res.json()) as { models?: { name: string }[] };
       this.modelos = (data.models ?? []).map((m) => m.name).filter(esDeTexto);
+      this.ollama = true;
     } catch {
       this.modelos = [];
+      this.ollama = false;
     } finally {
       this.comprobado = true;
+    }
+  }
+
+  /**
+   * One-click model download for people who just installed Ollama. Streams
+   * Ollama's pull progress (NDJSON) into `progreso`. Only lists and pulls:
+   * nothing is loaded into memory until the user presses G.
+   */
+  async descargarModelo(modelo = MODELO_RECOMENDADO): Promise<void> {
+    if (this.progreso !== null) return;
+    this.progreso = 0;
+    this.estadoDescarga = 'Empezando…';
+    try {
+      const res = await fetch(`${OLLAMA}/api/pull`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: modelo, stream: true }),
+      });
+      if (!res.ok || !res.body) throw new Error(`Ollama respondió ${res.status}`);
+      const lector = res.body.getReader();
+      const texto = new TextDecoder();
+      let resto = '';
+      for (;;) {
+        const { done, value } = await lector.read();
+        if (done) break;
+        resto += texto.decode(value, { stream: true });
+        const lineas = resto.split('\n');
+        resto = lineas.pop() ?? '';
+        for (const l of lineas) {
+          if (!l.trim()) continue;
+          const ev = JSON.parse(l) as { status?: string; total?: number; completed?: number; error?: string };
+          if (ev.error) throw new Error(ev.error);
+          if (ev.total && ev.completed !== undefined) this.progreso = ev.completed / ev.total;
+          if (ev.status === 'success') this.progreso = 1;
+        }
+      }
+      this.estadoDescarga = '';
+      await this.comprobar();
+      if (this.modelos.includes(modelo)) this.setModelo(modelo);
+    } catch (err) {
+      this.estadoDescarga = `No se pudo descargar (${(err as Error).message}).`;
+    } finally {
+      this.progreso = null;
     }
   }
 

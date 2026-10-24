@@ -1,6 +1,6 @@
 {
   "name": "@gtd/desktop",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "private": true,
   "description": "Cáscara Electron (escritorio) de Innerio. La UI vive en apps/web; aquí solo el contenedor nativo.",
   "author": "Frederick Andrade",

@@ -111,6 +111,10 @@ class Asistente {
         prompt: `Nota: ${nota}`,
         stream: false,
         think: false,
+        // The model loads only on an explicit request (G) and is freed two
+        // minutes after the last one, so it never sits in memory just
+        // because the app is open. Detecting Ollama (/api/tags) loads nothing.
+        keep_alive: '2m',
         format: ESQUEMA,
         options: { temperature: 0.6, num_predict: 160 },
       }),

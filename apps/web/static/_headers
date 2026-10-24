@@ -1,0 +1,31 @@
+# Security headers served by Cloudflare Pages on every response.
+# Pages reads this file from the build output root; SvelteKit's
+# adapter-static copies `static/` verbatim, so this lands at the right path.
+#
+# CSP rationale (revival 2026-05-21, ADR-032):
+#   - 'self' covers all bundled JS/CSS (Vite emits same-origin chunks).
+#   - 'unsafe-inline' on script-src is required by the FOUC theme script in
+#     app.html. Adapter-static no permite añadir nonce.
+#   - 'unsafe-inline' on style-src is required by Svelte 5's runtime style
+#     injection (component <style> blocks become inline).
+#   - connect-src incluye:
+#       'self' — bundle + service worker
+#       https://innerio-api.dohkku.dev — Better Auth + crypto envelope API
+#       wss://innerio-api.dohkku.dev — Triplit sync WebSocket
+#     En modo anonymous local nada de esto se contacta; las URLs solo se
+#     usan cuando session.svelte arranca Better Auth (sync mode).
+#   - img-src includes data: for inline favicons.
+#   - frame-ancestors 'none' blocks clickjacking.
+#   - object-src 'none' kills <embed>/<object> attack surface.
+#   - base-uri 'self' prevents <base> hijacking.
+#   - form-action 'self' constrains form submissions.
+#
+# HSTS: 2-year max-age + includeSubDomains.
+
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://innerio-api.dohkku.dev wss://innerio-api.dohkku.dev; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'
+  Strict-Transport-Security: max-age=63072000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=(self), interest-cohort=()
+  X-Frame-Options: DENY

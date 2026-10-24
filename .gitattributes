@@ -1,0 +1,17 @@
+# Enforce LF line endings for all text files across platforms.
+# Biome's formatter is configured with `lineEnding: "lf"` (biome.json) and
+# Windows clones with `core.autocrlf=true` would otherwise materialize the
+# checkout as CRLF and fail every formatter check.
+* text=auto eol=lf
+
+# Lockfiles and binary artifacts: untouched.
+*.lockb binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.sqlite binary
+*.sqlite-* binary

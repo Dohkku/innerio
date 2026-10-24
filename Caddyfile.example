@@ -1,0 +1,23 @@
+# Example Caddyfile for self-host with TLS via Let's Encrypt.
+# Use only if NOT fronting via Cloudflare tunnel.
+#
+# rename to `Caddyfile`, set DOMAIN/EMAIL, and run:
+#   docker compose --profile caddy up -d
+
+{
+  email {$EMAIL}
+}
+
+{$DOMAIN} {
+  # Web app (Phase 1+)
+  reverse_proxy /api/* triplit:6543
+  reverse_proxy /sync/* triplit:6543
+
+  # Web UI: served from a separate container in Phase 1+
+  # reverse_proxy web:3000
+
+  encode gzip zstd
+  log {
+    output stdout
+  }
+}

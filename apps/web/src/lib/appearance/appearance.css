@@ -1,0 +1,493 @@
+/* ============================================================================
+ * Appearance tokens — Innerio
+ * ----------------------------------------------------------------------------
+ * Solo dos modos: light (default) + dark. El usuario alterna via `data-theme`
+ * en `<html>` (Día / Noche) o lo deja vacío para auto (Auto = `prefers-color-scheme`).
+ *
+ * Tokens consumidos por componentes (no usar hex directos en componentes):
+ *
+ *   --surface-base    page background
+ *   --surface-raised  cards, modals
+ *   --surface-sunken  pressed states, code blocks, demo frames
+ *   --text-primary    body text
+ *   --text-secondary  descriptions, captions
+ *   --text-muted      hints, disabled placeholders
+ *   --border-subtle   card borders
+ *   --border-default  input borders, dividers
+ *   --border-strong   focused borders, separators
+ *   --accent          primary action color
+ *   --accent-hover    accent darker / lighter variant for hover
+ *   --accent-muted    accent at low opacity (active row backgrounds)
+ *   --accent-contrast text/icon color que va sobre --accent
+ *
+ * Backwards-compat: `--bg` y `--fg` alias a `--surface-base` / `--text-primary`.
+ *
+ * ----------------------------------------------------------------------------
+ * SPACING + TYPE SCALE (2026-05-18 rediseño "espacio en vez de línea")
+ *
+ *   --space-1: 0.25rem    iconos pegados, badges internos
+ *   --space-2: 0.5rem     gap intra-ítem (entre check y título)
+ *   --space-3: 0.75rem    gap entre meta-fields
+ *   --space-4: 1rem       padding vertical de fila
+ *   --space-5: 1.5rem     separación entre grupos del mismo bloque
+ *   --space-6: 2rem       separación entre secciones distintas
+ *   --space-7: 3rem       separación entre módulos grandes
+ *   --space-8: 4.5rem     margen superior a la "próxima acción" destacada
+ *
+ *   --text-xs:   0.72rem  eyebrows, badges, meta secundaria
+ *   --text-sm:   0.85rem  meta, contadores, ayuda
+ *   --text-base: 0.95rem  cuerpo / labels
+ *   --text-md:   1.05rem  fila destacada
+ *   --text-lg:   1.2rem   subtítulos
+ *   --text-xl:   1.5rem   título de página
+ *   --text-2xl:  2rem     título de proyecto
+ *
+ *   --weight-normal: 400
+ *   --weight-medium: 500
+ *
+ * Regla "espacio antes que separador":
+ *   - Las listas NO llevan border entre filas. La proximidad/lejanía
+ *     del espacio agrupa.
+ *   - Los headers NO llevan border-bottom. El espacio inferior los separa
+ *     del contenido.
+ *   - El accent solo aparece en hover/focus/underline de interacción.
+ *     Nunca como fondo persistente de "estado".
+ *
+ * (2026-05-18: paletas built-in y custom palette retiradas — tijera Musk 🟡.
+ *  Solo queda la paleta "tinta" default; los selectores [data-palette=...]
+ *  desaparecieron con `/settings/appearance` simplificado a tema only.)
+ * ============================================================================
+ */
+
+/* Reserva siempre el espacio del scrollbar para que el layout no salte
+ * cuando una vista pasa de no-overflow a overflow (toggle "mostrar
+ * completadas" en /work, expand/collapse de bloques, etc.). */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* === SPACING + TYPE SCALE (palette-independent) =========================== */
+:root {
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+
+  --text-xxs: 0.65rem;
+  --text-xs: 0.72rem;
+  --text-sm: 0.85rem;
+  --text-base: 0.95rem;
+  --text-md: 1.05rem;
+  --text-lg: 1.2rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  --radius-sm: 0.3rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+
+  /* === MOTION ============================================================
+   * Duraciones de transición canónicas. Reglas:
+   *   - quick (80ms): feedback inmediato — color, background hover.
+   *   - base (120ms): cambios de elevación, transforms, box-shadow.
+   *   - slow (200ms): cambios de layout, modales, paneles.
+   * Press feedback global (60ms) vive aparte por ser más rápido aún. */
+  --dur-quick: 80ms;
+  --dur-base: 120ms;
+  --dur-slow: 200ms;
+
+  /* === CONTROL SIZES =====================================================
+   * Slots cuadrados para botones de icono. Tap target en touch sube a --control-lg. */
+  --control-sm: 1.4rem;
+  --control-md: 1.7rem;
+  --control-lg: 2.2rem;
+
+  /* === INPUT BAR =========================================================
+   * Padding canónico para inputs flotantes (capture bar de bandeja, título
+   * de proyecto, picker de fecha). Mantiene altura uniforme entre vistas. */
+  --input-bar-pad-x: 0.9rem;
+  --input-bar-pad-y: 0.6rem;
+
+  /* === RESPONSIVE LAYOUT TOKENS =========================================
+   * Breakpoints (informativos, consumidos vía @media en componentes):
+   *   --bp-sm:   40rem  /  640px  → móvil grande
+   *   --bp-md:   60rem  /  960px  → tablet / desktop pequeño
+   *   --bp-lg: 87.5rem  / 1400px  → ultrawide
+   *   --bp-xl:  100rem  / 1600px  → desktop grande (font scale up)
+   *   --bp-2k:  120rem  / 1920px  → FHD ancho / 2K vertical
+   *   --bp-4k:  160rem  / 2560px  → 2K real / 4K downscaled
+   *
+   * Container tokens — consumidos por `.page` de cada ruta:
+   *   --container-max     max-width estándar (720px lectura cómoda)
+   *   --container-pad-x   padding lateral fluido (12px móvil → 24px desktop)
+   *   --container-pad-y   padding vertical de página
+   * ----------------------------------------------------------------------*/
+  --container-max: 720px;
+  --container-pad-x: clamp(0.75rem, 3vw, 1.5rem);
+  --container-pad-y: var(--space-5);
+}
+
+/* Ultrawide: ensanchar contenedor para listas largas con metainfo. */
+@media (min-width: 87.5rem) {
+  :root {
+    --container-max: 880px;
+  }
+}
+
+/* Monitores grandes: escalar root font-size con curva fluida (sin saltos).
+ * Antes había 3 media-queries (100rem→30px, 120rem→33px, 160rem→36px) que
+ * producían saltos del +87% al cruzar 1600px — cualquier cambio de zoom o
+ * DPI scaling de Windows hacía que el viewport rebotara sobre el umbral y
+ * todo el sistema (todo en rem) explotaba. clamp() interpola continuo:
+ *   1366px → 17.4px · 1600px → 18.0px · 1920px → 18.8px · 2560px → 20.4px · 3840px → 22.0px (cap) */
+:root {
+  font-size: clamp(16px, 14px + 0.25vw, 22px);
+}
+
+@media (min-width: 120rem) {
+  :root {
+    --container-max: 1530px;
+  }
+}
+@media (min-width: 160rem) {
+  :root {
+    --container-max: 1800px;
+  }
+}
+
+/* === PRESS FEEDBACK ======================================================
+ * Tactile depression on any clickable element while held (mousedown,
+ * pre-release). Mirrors the mode-segmented "on" state: translateY +
+ * inset shadow. Fast (60ms in / out) — perceptible but not laggy.
+ * Skips :disabled and aria-disabled. Component-scoped styles can
+ * override via higher specificity (Svelte scoping). */
+button:not(:disabled):active,
+a[role="button"]:not([aria-disabled="true"]):active,
+[role="button"]:not([aria-disabled="true"]):active {
+  transform: translateY(1px);
+  box-shadow: var(--shadow-inset-sm);
+}
+button,
+a[role="button"],
+[role="button"] {
+  transition: transform 60ms ease, box-shadow 80ms ease, background 80ms ease, color 80ms ease;
+}
+
+/* === DEFAULTS (Hoja light) ===============================================
+ * Paleta "verde hoja" — el accent es el primary branding color
+ * (hsl 95, 45%, 32% ≈ verde forest), y las superficies se derivan
+ * shifteando el L del accent al rango 90-99% (con saturación bajada
+ * para evitar tinte minty). Texto + borders también heredan el hue
+ * para que la paleta lea uniforme sin caer en monocroma. */
+:root {
+  --surface-base: hsl(95, 30%, 95%);
+  --surface-raised: hsl(95, 35%, 98%);
+  --surface-sunken: hsl(95, 25%, 89%);
+  /* Input-bar surface. Default = raised. Dark themes lo suben para que la
+   * caja flotante destaque sobre base (gama roja con L≈5% es muy cerrada). */
+  --surface-input: var(--surface-raised);
+  --text-primary: hsl(95, 10%, 12%);
+  --text-secondary: hsl(95, 8%, 34%);
+  --text-muted: hsl(95, 8%, 60%);
+  --border-subtle: hsl(95, 15%, 84%);
+  --border-default: hsl(95, 12%, 72%);
+  --border-strong: hsl(95, 10%, 55%);
+  --accent: hsl(95, 45%, 32%);
+  --accent-hover: hsl(95, 50%, 24%);
+  --accent-muted: hsl(95, 35%, 86%);
+  --accent-contrast: #ffffff;
+  color-scheme: light;
+
+  /* === SEMANTIC COLORS (light) ==========================================
+   * Para badges, hovers tonales (positivo/peligro/aviso) y indicadores.
+   * No usar hex directos en componentes — siempre estos tokens. */
+  --success: #16a34a;
+  --success-bg: color-mix(in oklab, #16a34a 14%, transparent);
+  --danger: #dc2626;
+  --danger-bg: color-mix(in oklab, #dc2626 14%, transparent);
+  --warning: #d97706;
+  --warning-bg: color-mix(in oklab, #d97706 14%, transparent);
+  --info: #7c3aed;
+  --info-bg: color-mix(in oklab, #7c3aed 14%, transparent);
+
+  /* === HOVER / PRESS / SURFACE-INTERACT =================================
+   * Tres niveles de feedback tonal sobre currentColor:
+   *   --hover-bg-*  (2/3/5%)   transient — puntero encima, sin pulsar.
+   *   --press-bg-*  (6/8/12%)  pulsado (mousedown) o estado persistente
+   *                            "on" (data-on, .active, segmented selected).
+   * Regla de uso: `:hover` usa hover-bg; `:active` y estados persistentes
+   * usan press-bg. Mantienen la misma escala subtle/medium/strong para
+   * que cada componente elija intensidad según contexto.
+   * `border-mix` se aplica a outlines/separadores adaptados al texto. */
+  --hover-bg-subtle: color-mix(in oklab, currentColor 2%, transparent);
+  --hover-bg-medium: color-mix(in oklab, currentColor 3%, transparent);
+  --hover-bg-strong: color-mix(in oklab, currentColor 5%, transparent);
+  --press-bg-subtle: color-mix(in oklab, currentColor 6%, transparent);
+  --press-bg-medium: color-mix(in oklab, currentColor 8%, transparent);
+  --press-bg-strong: color-mix(in oklab, currentColor 12%, transparent);
+  --border-mix-subtle: color-mix(in oklab, currentColor 10%, transparent);
+  --border-mix-medium: color-mix(in oklab, currentColor 22%, transparent);
+  --border-mix-strong: color-mix(in oklab, currentColor 30%, transparent);
+
+  /* Legacy aliases */
+  --bg: var(--surface-base);
+  --fg: var(--text-primary);
+
+  --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-headings: var(--font-body);
+
+  /* === Shadow tokens (light) ============================================
+   * Used for floating inputs, segmented controls, and elevated list rows.
+   * Dark-mode overrides switch to a soft white halo + stronger black drop
+   * so elevation reads on near-black surfaces. */
+  --shadow-float-lg: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px, rgba(0, 0, 0, 0.3) 0px 18px 36px
+    -18px;
+  --shadow-float-sm: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+  --shadow-inset-sm: inset rgba(0, 0, 0, 0.25) 0px 2px 4px 0px, inset rgba(50, 50, 93, 0.18) 0px 1px
+    2px 0px;
+  --shadow-flat: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+  --shadow-cascade-flat: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
+  /* Hover/sunken: estado "hundido" sutil para filas de listas elevadas.
+   * Parece estar por debajo del estado idle. */
+  --shadow-sunken-sm: inset 0 1px 2px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+/* === DARK THEME ("dohkku terminal") =======================================
+ * Receta nueva (2026-05-19): clonada de dohkku.dev. Surfaces gris muy
+ * oscuro neutro, texto gris claro estilo terminal, accent verde matrix
+ * (#00ff42). Sustituye la receta anterior "rojo sleep-safe" — el usuario
+ * la promovió desde /sandbox/palettes tras probar variantes.
+ *
+ * Las sombras NO heredan la inversión literal del día porque la paleta
+ * dohkku es neutra-gris (sin hue) con accent verde — un halo cremoso
+ * (inversión literal de rgba(50,50,93)) introduciría color amarillento
+ * que la paleta no tiene en ningún otro sitio. Receta dedicada:
+ *   - Float (cards elevadas): halo blanco neutro + 1 capa verde muy
+ *     sutil tipo phosphor CRT para enlazar con el accent.
+ *   - Flat / cascade: sombra negra ligera bajo cards (mantiene
+ *     "elevación" sobre la base gris).
+ *   - Inset / sunken: negras siempre — "hundido hacia dentro" lee
+ *     oscuro independiente del tema (regla canónica).
+ * --------------------------------------------------------------------- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --surface-base: #181818;
+    --surface-raised: #252525;
+    --surface-sunken: #0a0a0a;
+    --surface-input: #1f1f1f;
+    --text-primary: #d1d1d1;
+    --text-secondary: #888888;
+    --text-muted: #555555;
+    --border-subtle: #1a1a1a;
+    --border-default: #333333;
+    --border-strong: #555555;
+    --accent: #00ff42;
+    --accent-hover: #4dff7a;
+    --accent-muted: #1a3a20;
+    --accent-contrast: #181818;
+    --success: #4ade80;
+    --success-bg: color-mix(in oklab, #4ade80 18%, transparent);
+    --danger: #f87171;
+    --danger-bg: color-mix(in oklab, #f87171 18%, transparent);
+    --warning: #fbbf24;
+    --warning-bg: color-mix(in oklab, #fbbf24 18%, transparent);
+    --info: #a78bfa;
+    --info-bg: color-mix(in oklab, #a78bfa 18%, transparent);
+    color-scheme: dark;
+
+    --shadow-float-lg: rgba(0, 0, 0, 0.55) 0 30px 60px -12px, rgba(0, 0, 0, 0.4) 0 18px 36px -18px,
+      rgba(0, 255, 66, 0.05) 0 0 24px -4px;
+    --shadow-float-sm: rgba(0, 0, 0, 0.5) 0 2px 5px -1px, rgba(0, 0, 0, 0.35) 0 1px 3px -1px;
+    --shadow-inset-sm: inset 0 2px 4px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-flat: rgba(0, 0, 0, 0.45) 0 1px 3px, rgba(0, 0, 0, 0.55) 0 1px 2px;
+    --shadow-cascade-flat: rgba(0, 0, 0, 0.4) 0 1px 2px 0;
+    --shadow-sunken-sm: inset 0 1px 2px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+  }
+}
+
+/* Explicit theme overrides. Higher specificity than @media. */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  /* Mismo bloque que `@media (prefers-color-scheme: dark)` arriba —
+   * receta "dohkku terminal". Duplicado a propósito (mayor especificidad
+   * que la @media). */
+  --surface-base: #181818;
+  --surface-raised: #252525;
+  --surface-sunken: #0a0a0a;
+  --surface-input: #1f1f1f;
+  --text-primary: #d1d1d1;
+  --text-secondary: #888888;
+  --text-muted: #555555;
+  --border-subtle: #1a1a1a;
+  --border-default: #333333;
+  --border-strong: #555555;
+  --accent: #00ff42;
+  --accent-hover: #4dff7a;
+  --accent-muted: #1a3a20;
+  --accent-contrast: #181818;
+  --success: #4ade80;
+  --success-bg: color-mix(in oklab, #4ade80 18%, transparent);
+  --danger: #f87171;
+  --danger-bg: color-mix(in oklab, #f87171 18%, transparent);
+  --warning: #fbbf24;
+  --warning-bg: color-mix(in oklab, #fbbf24 18%, transparent);
+  --info: #a78bfa;
+  --info-bg: color-mix(in oklab, #a78bfa 18%, transparent);
+  color-scheme: dark;
+
+  --shadow-float-lg: rgba(0, 0, 0, 0.55) 0 30px 60px -12px, rgba(0, 0, 0, 0.4) 0 18px 36px -18px,
+    rgba(0, 255, 66, 0.05) 0 0 24px -4px;
+  --shadow-float-sm: rgba(0, 0, 0, 0.5) 0 2px 5px -1px, rgba(0, 0, 0, 0.35) 0 1px 3px -1px;
+  --shadow-inset-sm: inset 0 2px 4px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-flat: rgba(0, 0, 0, 0.45) 0 1px 3px, rgba(0, 0, 0, 0.55) 0 1px 2px;
+  --shadow-cascade-flat: rgba(0, 0, 0, 0.4) 0 1px 2px 0;
+  --shadow-sunken-sm: inset 0 1px 2px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+
+/* === THEME TRANSITION (View Transitions API) =============================
+ * Crossfade entre Día/Noche cuando `setTheme()` envuelve el cambio en
+ * `document.startViewTransition()`. El browser snapshota root antes/después
+ * y hace el fade default sobre los layers OLD/NEW. Sin transitions
+ * per-elemento — zero paint storm, sin atrapar hovers/focus.
+ *
+ * Subimos duración a 400ms (default del browser ~250ms es muy corto para
+ * un cambio Día↔Noche con shift de tinte tan grande).
+ *
+ * Firefox / Safari estable: no soportan startViewTransition → el JS aplica
+ * el cambio instantáneo (sin transición), como antes.
+ *
+ * Respeta prefers-reduced-motion: 0ms (cambio efectivamente instantáneo). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 400ms;
+  animation-timing-function: ease-in-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0ms;
+  }
+}
+
+/* === GLOBAL FOCUS-VISIBLE ================================================
+ * Receta canónica de focus para todo elemento interactivo. Antes vivía
+ * duplicada en cada componente (3 variantes distintas). Componentes
+ * pueden override con mayor especificidad si necesitan algo más sutil
+ * (filas internas, links inline). */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* === SHARED UTILITY CLASSES ==============================================
+ * Recetas de UI repetidas a lo largo de la app, ahora globales. Los
+ * componentes las consumen con `class="input-bar"` o vía Svelte `:global()`.
+ * ----------------------------------------------------------------------- */
+
+/* Page-shell: wrapper canónico bajo Nav.svelte. Da el `padding-top` único
+ * de la app para que el primer elemento (topbar interna o main.page) caiga
+ * siempre a la misma Y desde el viewport top — sea inbox, work, process,
+ * projects, waiting o items/[id]. Cada `.page` y `.topbar` interno debe
+ * mantener padding/margin-top en 0; si meten su propio top, se acumula y
+ * cada ruta empieza a una altura distinta (regresión que esto resuelve).
+ * En /process no se renderiza Nav: el shell aplica desde el top de la
+ * ventana y la primera fila (BackButton + counter) queda con el mismo
+ * aire que las demás vistas. */
+.page-shell {
+  padding-top: var(--space-5);
+}
+
+/* Input-bar: caja flotante con un input (bandeja, título proyecto, capture
+ * de subtareas). Surface raised + shadow + padding canónico. */
+.input-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--input-bar-pad-y) var(--input-bar-pad-x);
+  background: var(--surface-input);
+  box-shadow: var(--shadow-float-lg);
+  transition: box-shadow var(--dur-base) ease;
+}
+.input-bar > input,
+.input-bar > textarea {
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  padding: 0;
+}
+.input-bar > input::placeholder,
+.input-bar > textarea::placeholder {
+  color: color-mix(in oklab, currentColor 40%, transparent);
+}
+
+/* Overlay-modal: modal centrado encima de backdrop. SearchOverlay,
+ * ClarifyQuickPick. El backdrop vive aparte como .overlay-backdrop. */
+.overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  background: color-mix(in oklab, var(--surface-base) 70%, transparent);
+  backdrop-filter: blur(2px);
+  z-index: 50;
+}
+.overlay-modal {
+  position: fixed;
+  z-index: 51;
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-float-lg);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+}
+
+/* State-pill: badge tipográfico (eyebrow). SearchOverlay, InspectorPanel.
+ * Variantes por `data-state`. */
+.state-pill {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.state-pill[data-state="done"] {
+  text-decoration: line-through;
+}
+.state-pill[data-state="waiting"]::before {
+  content: "· · ";
+}
+.state-pill[data-state="trashed"] {
+  opacity: 0.5;
+}
+
+/* Btn-reset: anula estilos por defecto del navegador. Sirve de base para
+ * cualquier botón visualmente custom. Pares con :focus-visible global. */
+.btn-reset {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  line-height: 1;
+}
+.btn-reset:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

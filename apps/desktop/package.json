@@ -1,0 +1,41 @@
+{
+  "name": "@gtd/desktop",
+  "version": "1.0.5",
+  "private": true,
+  "description": "Cáscara Electron (escritorio) de Innerio. La UI vive en apps/web; aquí solo el contenedor nativo.",
+  "author": "Frederick Andrade",
+  "license": "AGPL-3.0-only",
+  "main": "main.cjs",
+  "scripts": {
+    "build:web": "cd ../web && bun run build",
+    "start": "electron .",
+    "dist": "bun run build:web && electron-builder --linux dir",
+    "install-local": "./install-local.sh",
+    "release": "../../scripts/release-desktop.sh"
+  },
+  "build": {
+    "appId": "dev.dohkku.innerio",
+    "productName": "Innerio",
+    "files": ["main.cjs", "preload.cjs", "actualizar.cjs", "icon.png"],
+    "extraResources": [
+      {
+        "from": "../web/build",
+        "to": "web"
+      },
+      {
+        "from": "icon.png",
+        "to": "icon.png"
+      }
+    ],
+    "linux": {
+      "target": "dir",
+      "category": "Office",
+      "icon": "icon.png",
+      "executableName": "innerio"
+    }
+  },
+  "devDependencies": {
+    "electron": "^45.0.0",
+    "electron-builder": "^26.15.3"
+  }
+}

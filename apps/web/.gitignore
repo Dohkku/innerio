@@ -1,0 +1,26 @@
+node_modules
+
+# Output
+.output
+.vercel
+.netlify
+.wrangler
+/.svelte-kit
+/build
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+!.env.example
+!.env.test
+# .env.production holds public prod URLs baked into the build by Vite.
+# Local dev overrides go in .env.development.local (still ignored).
+!.env.production
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*

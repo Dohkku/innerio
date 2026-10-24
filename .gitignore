@@ -1,0 +1,57 @@
+# deps
+node_modules/
+.pnp
+.pnp.js
+bun.lockb
+
+# build
+dist/
+build/
+.svelte-kit/
+.output/
+.vercel/
+.netlify/
+
+# env
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# logs
+logs/
+*.log
+npm-debug.log*
+
+# editor
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# coverage
+coverage/
+*.lcov
+.nyc_output/
+
+# triplit
+.triplit/
+
+# auth (Better Auth's SQLite store, lives in cwd of apps/triplit-server by default)
+auth.sqlite
+auth.sqlite-journal
+auth.sqlite-wal
+auth.sqlite-shm
+
+# misc
+.cache/
+.turbo/
+tmp/
+*.tmp
+
+
+# Easter egg catalog (bind-mounted al contenedor desde el host, per-instance)
+secret-phrases.txt
+
+# Desktop packages, published to the server only (scripts/release-desktop.sh)
+/descargas/

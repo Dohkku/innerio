@@ -1,0 +1,26 @@
+{
+  "name": "@gtd/triplit-server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --watch src/server.ts",
+    "start": "bun src/server.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "echo 'no tests yet'"
+  },
+  "dependencies": {
+    "@gtd/schema": "workspace:*",
+    "@triplit/client": "^1.0.50",
+    "@triplit/db": "^1.1.10",
+    "@triplit/server": "^1.1.8",
+    "better-auth": "^1.6.9",
+    "hono": "4.7.6",
+    "jose": "^6.2.3",
+    "nodemailer": "^8.0.7"
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^8.0.0",
+    "typescript": "^5.6.0"
+  }
+}

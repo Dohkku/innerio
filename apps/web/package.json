@@ -1,0 +1,40 @@
+{
+  "name": "@gtd/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "prepare": "svelte-kit sync || echo ''",
+    "typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "test:unit": "vitest",
+    "test": "vitest --run"
+  },
+  "dependencies": {
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/local-notifications": "^6.1.0",
+    "@gtd/core": "workspace:*",
+    "@gtd/crypto": "workspace:*",
+    "@gtd/schema": "workspace:*",
+    "@triplit/client": "^1.0.50",
+    "@triplit/logger": "0.0.3",
+    "@triplit/svelte": "^1.0.50",
+    "better-auth": "^1.6.9",
+    "qr-scanner": "^1.4.2",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-static": "^3.0.10",
+    "@sveltejs/kit": "^2.57.0",
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
+    "@types/qrcode": "^1.5.6",
+    "svelte": "^5.55.2",
+    "svelte-check": "^4.4.6",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.7",
+    "vitest": "^4.1.3"
+  }
+}

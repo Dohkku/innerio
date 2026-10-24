@@ -1,0 +1,24 @@
+node_modules
+**/node_modules
+.git
+**/.env
+**/.env.*
+!**/.env.example
+
+# Local sqlite/auth state must never be baked into the image.
+# Triplit's kv lives at apps/triplit-server/data/triplit.db (relative path
+# from the server's WORKDIR) and Better Auth at auth.sqlite — both should
+# come from the runtime volume, not the build context.
+**/data/
+**/*.sqlite
+**/*.sqlite-shm
+**/*.sqlite-wal
+**/*.db
+**/*.db-shm
+**/*.db-wal
+
+# Docs / tooling that don't belong in the image
+.vault
+.github
+*.md
+!apps/*/README.md

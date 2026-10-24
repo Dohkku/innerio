@@ -1,0 +1,121 @@
+name: innerio
+
+# Self-host docker-compose. The Triplit sync server bundles Better Auth
+# in the same Bun process, so a single container provides both /sync and
+# /api/auth/* routes. Postgres + Caddy are optional add-ons behind profiles.
+#
+# Usage:
+#   cp .env.example .env
+#   docker compose up -d                       # sync server + auth
+#   docker compose --profile postgres up -d    # + postgres (currently unused)
+#   docker compose --profile caddy up -d       # + Caddy TLS (non-tunnel)
+#
+# Cloudflare tunnel: point your tunnel at host:6543 for both /sync and
+# /api/auth/*; serve the web app from a separate static host.
+
+services:
+  triplit:
+    build:
+      context: .
+      dockerfile: apps/triplit-server/Dockerfile
+    restart: unless-stopped
+    environment:
+      PORT: 6543
+      # Pin production mode (defense-in-depth on top of Dockerfile ENV).
+      # The server's CORS guard widens to localhost:* in dev — see S1
+      # in .vault/40-2026-05-cleanup-audit.md.
+      NODE_ENV: production
+      # Triplit sync
+      TRIPLIT_JWT_SECRET: ${TRIPLIT_JWT_SECRET}
+      TRIPLIT_PROJECT_ID: ${TRIPLIT_PROJECT_ID:-gtd-self-hosted}
+      TRIPLIT_STORAGE: sqlite
+      TRIPLIT_VERBOSE: ${TRIPLIT_VERBOSE:-0}
+      TRIPLIT_TOKEN_TTL: ${TRIPLIT_TOKEN_TTL:-15m}
+      # Persist Triplit kv inside the named volume so `docker compose up
+      # --build` doesn't wipe user data. Without this, the server falls
+      # back to `./data/triplit.db` (relative to /app/apps/triplit-server),
+      # which lives on the ephemeral container layer and is recreated on
+      # every rebuild.
+      LOCAL_DATABASE_URL: /data/triplit.db
+      # Better Auth (required — server exits on startup without these)
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:5173}
+      AUTH_BASE_URL: ${AUTH_BASE_URL:-}
+      AUTH_DB_PATH: /data/auth.sqlite
+      # Magic link SMTP transport (optional — falls back to stdout in dev)
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-465}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      # Google OAuth (optional — button hidden if unset)
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      # Easter egg catalog file. Bind-monted from host below so it survives
+      # `docker compose down -v` and edits apply al instante (server re-lee
+      # cuando cambia la mtime).
+      SECRET_PHRASES_FILE: /etc/innerio/secret-phrases.txt
+      DESCARGAS_DIR: /descargas
+    volumes:
+      - triplit-data:/data
+      # Bind mount del archivo de frases del easter egg. El archivo del host
+      # NO entra en git (.gitignore). Si no existe, el server cae al fallback
+      # histórico (la frase original) — el easter egg nunca se rompe.
+      # `touch ./secret-phrases.txt` antes del primer `up` para evitar que
+      # Docker lo cree como directorio vacío.
+      - ./secret-phrases.txt:/etc/innerio/secret-phrases.txt:ro
+      # Desktop packages published by scripts/release-desktop.sh (ADR-040).
+      - ./descargas:/descargas:ro
+    ports:
+      # Bound to loopback only — Cloudflare Tunnel reaches the port via the
+      # cloudflared process on the host. This prevents exposure to the LAN,
+      # WiFi guests, or any other container on the same Docker network.
+      # Override to "0.0.0.0:..." only if you intentionally need LAN access
+      # (e.g. testing from a phone on the same WiFi during dev).
+      - "127.0.0.1:${TRIPLIT_PORT:-6543}:6543"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:6543/healthcheck"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  postgres:
+    image: postgres:16-alpine
+    profiles: ["postgres"]
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-gtd}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-gtd}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      # Loopback-only — same rationale as the triplit service. Override to
+      # "0.0.0.0:..." only if you intentionally need LAN access.
+      # Audit S5 (2026-05-03).
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gtd}"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  caddy:
+    image: caddy:2-alpine
+    profiles: ["caddy"]
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - triplit
+
+volumes:
+  triplit-data:
+  postgres-data:
+  caddy-data:
+  caddy-config:

@@ -1,3 +1,4 @@
+import { idsDeEjemplo, olvidarEjemplos } from '$lib/demo-seed';
 import { triplit } from '$lib/triplit';
 
 const lsKey = (userId: string) => `gtd:adopted:${userId}`;
@@ -68,6 +69,7 @@ export async function clearOrphanedRows(currentUserId: string): Promise<number> 
  */
 export async function adoptDemoData(userId: string): Promise<void> {
   if (typeof window === 'undefined') return;
+  await dropExampleRows();
   if (localStorage.getItem(lsKey(userId))) return;
 
   const [items, settings] = await Promise.all([
@@ -93,4 +95,19 @@ export async function adoptDemoData(userId: string): Promise<void> {
       enc_v: 0,
     });
   }
+}
+
+/**
+ * The example rows seeded for trial mode (`$lib/demo-seed`) are not the
+ * visitor's data: delete them locally before adoption so they never reach
+ * the real account. Anything the visitor captured themselves is kept.
+ */
+async function dropExampleRows(): Promise<void> {
+  const ids = new Set(idsDeEjemplo());
+  if (ids.size === 0) return;
+  const rows = (await triplit.fetch(
+    triplit.query('items').Where('user_id', '=', ''),
+  )) as { id: string }[];
+  await Promise.all(rows.filter((r) => ids.has(r.id)).map((r) => triplit.delete('items', r.id)));
+  olvidarEjemplos();
 }

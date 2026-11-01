@@ -13,7 +13,6 @@ En español: la web y la app están en español, y la guía de GTD también.
 
 - **Inbox and processing.** Everything goes to the inbox. Processing shows one item at a time and each decision is a key: action, project, calendar, reminder, done, discard, skip.
 - **Next actions, projects, calendar, reminders.** Projects can be sequential or parallel. Recurring tasks advance on their own.
-- **Local AI assistant (optional).** While processing, press G and a model running on your own machine through [Ollama](https://ollama.com) proposes three concrete next actions. Nothing is sent anywhere.
 - **Offline first.** Data lives in the browser (IndexedDB) and syncs when there is a connection.
 - **End-to-end encryption.** With an account, titles, notes and the rest of the text are encrypted on your device before they leave. The server stores ciphertext and never has the key.
 - **Installable.** Web app (installable as a PWA on desktop and mobile) and a Linux desktop app with signed automatic updates.

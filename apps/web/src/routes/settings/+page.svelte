@@ -27,12 +27,7 @@
   } from '$lib/stores/daily-reminder.svelte';
   import { desktopBridge, isNativeShell } from '$lib/platform';
   import { isIOS, pwa } from '$lib/pwa.svelte';
-  import { asistente } from '$lib/asistente.svelte';
 
-  const ia = asistente();
-  $effect(() => {
-    if (!ia.comprobado) void ia.comprobar();
-  });
   import pkg from '../../../package.json';
 
   const THEME_MODES: { value: Theme; title: string }[] = [
@@ -146,86 +141,6 @@
       {/if}
     </nav>
   </section>
-
-  {#if ia.modelos.length > 0 || (isNativeShell() && ia.comprobado)}
-    <section class="settings-section">
-      <h2 class="section-h">Asistente</h2>
-      <div class="reminder">
-        {#if ia.modelos.length > 0}
-          <label class="reminder-row">
-            <span class="reminder-text">
-              <span class="reminder-title">Sugerir la siguiente acción</span>
-              <span class="reminder-sub">
-                Al procesar, pulsa G y te propone tres acciones concretas. La IA funciona en tu
-                ordenador: tus tareas no salen de aquí.
-              </span>
-            </span>
-            <input
-              type="checkbox"
-              class="reminder-toggle"
-              checked={ia.activo}
-              onchange={(e) => ia.setActivo((e.currentTarget as HTMLInputElement).checked)}
-              aria-label="Activar el asistente"
-            />
-          </label>
-          {#if ia.activo && ia.modelos.length > 1}
-            <label class="reminder-time">
-              <span class="reminder-sub">Modelo</span>
-              <select
-                value={ia.modelo}
-                onchange={(e) => ia.setModelo((e.currentTarget as HTMLSelectElement).value)}
-              >
-                {#each ia.modelos as m (m)}
-                  <option value={m}>{m}</option>
-                {/each}
-              </select>
-            </label>
-          {/if}
-        {:else if ia.ollama}
-          <span class="reminder-text">
-            <span class="reminder-title">Último paso: descargar la IA</span>
-            <span class="reminder-sub">
-              Son unos 3 GB y solo se descarga una vez. Después funciona sin internet.
-            </span>
-          </span>
-          {#if ia.progreso !== null}
-            <div class="progreso" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={Math.round(ia.progreso * 100)}>
-              <div class="progreso-barra" style:width={`${Math.round(ia.progreso * 100)}%`}></div>
-            </div>
-            <p class="reminder-warn">Descargando… {Math.round(ia.progreso * 100)} %</p>
-          {:else}
-            <button type="button" class="instalar-btn" onclick={() => ia.descargarModelo()}>
-              Descargar la IA
-            </button>
-          {/if}
-          {#if ia.estadoDescarga && ia.progreso === null}
-            <p class="reminder-warn" role="status">{ia.estadoDescarga}</p>
-          {/if}
-        {:else}
-          <span class="reminder-text">
-            <span class="reminder-title">Un ayudante para decidir qué hacer</span>
-            <span class="reminder-sub">
-              Al procesar, una IA te propone la siguiente acción concreta de cada cosa. Funciona
-              dentro de tu ordenador, así que tus tareas no salen de él. Para activarla instala
-              Ollama, un programa gratuito, y vuelve aquí.
-            </span>
-          </span>
-          <ol class="pasos-ia">
-            <li>
-              <a href="https://ollama.com/download" target="_blank" rel="noreferrer">Descarga Ollama</a>
-              e instálalo como cualquier programa.
-            </li>
-            <li>Ábrelo. Se queda funcionando en segundo plano.</li>
-            <li>Pulsa el botón de abajo y descarga la IA desde aquí.</li>
-          </ol>
-          <button type="button" class="instalar-btn" onclick={() => ia.comprobar()}>
-            Ya lo tengo, comprobar
-          </button>
-          <p class="reminder-warn">Necesita un ordenador con 8 GB de memoria o más.</p>
-        {/if}
-      </div>
-    </section>
-  {/if}
 
   {#if !isNativeShell() && !pwa.installed && (pwa.prompt || isIOS())}
     <section class="settings-section">
@@ -472,8 +387,7 @@
     padding-top: var(--space-3);
     border-top: 1px solid var(--border-subtle);
   }
-  .reminder-time input,
-  .reminder-time select {
+  .reminder-time input {
     font: inherit;
     color: var(--text-primary);
     background: var(--surface-input);
@@ -491,26 +405,6 @@
     border-radius: var(--radius-sm);
     padding: var(--space-2) var(--space-3);
     cursor: pointer;
-  }
-  .progreso {
-    height: 0.5rem;
-    border-radius: 999px;
-    background: var(--surface-sunken);
-    overflow: hidden;
-  }
-  .progreso-barra {
-    height: 100%;
-    background: var(--accent);
-    transition: width 0.3s ease;
-  }
-  .pasos-ia {
-    margin: 0;
-    padding-left: 1.2rem;
-    font-size: var(--text-sm);
-    color: var(--text-secondary);
-  }
-  .pasos-ia li + li {
-    margin-top: var(--space-1);
   }
   .reminder-warn {
     margin: 0;

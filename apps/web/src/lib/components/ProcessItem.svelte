@@ -5,7 +5,6 @@
   import { LIMITS } from '$lib/limits';
   import { focusNextTabbable } from '$lib/dom-utils';
   import type { Item } from '@gtd/schema';
-  import SugerirAccion from '$lib/components/SugerirAccion.svelte';
 
   let { item }: { item: Item } = $props();
 
@@ -143,8 +142,6 @@
     <span class="notes-caret" aria-hidden="true"></span>
   {/if}
 </div>
-
-<SugerirAccion {item} />
 
 <style>
   .head {

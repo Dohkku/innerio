@@ -16,6 +16,8 @@
   import { useScope } from '$lib/keyboard.svelte';
   import { open as openSearch } from '$lib/stores/search.svelte';
   import { runMigrations } from '$lib/migrations';
+  import { sembrarEjemplos } from '$lib/demo-seed';
+  import { isNativeShell } from '$lib/platform';
   // Side-effect imports.
   import '$lib/appearance/appearance.css';
   import '$lib/stores/appearance.svelte';
@@ -58,6 +60,14 @@
   $effect(() => {
     if (itemsCountSub.fetching) return;
     void runMigrations();
+  });
+
+  // Modo prueba en la web: la primera visita sin cuenta abre la app con
+  // ejemplos en vez de vacía (solo en este navegador; ver $lib/demo-seed).
+  $effect(() => {
+    if (itemsCountSub.fetching || !session.ready || session.user) return;
+    if (isNativeShell() || page.url.pathname.startsWith('/pair')) return;
+    void sembrarEjemplos();
   });
 
   // Modelo B (doc 48): solo en la app nativa, suscribe items para reprogramar

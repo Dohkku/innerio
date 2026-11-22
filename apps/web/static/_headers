@@ -23,7 +23,7 @@
 # HSTS: 2-year max-age + includeSubDomains.
 
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://innerio-api.dohkku.dev wss://innerio-api.dohkku.dev; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://stats.dohkku.dev; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://innerio-api.dohkku.dev wss://innerio-api.dohkku.dev https://stats.dohkku.dev; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'
   Strict-Transport-Security: max-age=63072000; includeSubDomains
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin

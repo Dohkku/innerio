@@ -35,7 +35,7 @@ const config = {
     serviceWorker: { register: false },
     csp: {
       mode: 'hash',
-      directives: { 'script-src': ['self'] },
+      directives: { 'script-src': ['self', 'https://stats.dohkku.dev'] },
     },
     version: {
       name: getVersion(),
